@@ -1,135 +1,101 @@
-# mlops-project
-
 # OTT Analytics and Churn Prediction System
 
-Predicts which subscribers of an OTT (streaming) platform are likely to
-cancel their subscription (churn), based on viewing behavior and account
-details — so the platform can target retention offers at the right
-customers before they leave.
+A machine learning system that predicts whether an OTT subscriber is likely to **churn (cancel their subscription)** based on customer details and viewing behavior.
 
 ## Problem Statement
 
-Given customer data such as watch hours, days since last login,
-subscription type, and region, predict whether a customer will churn
-(`1`) or stay (`0`).
+Predict whether a customer will **churn (1)** or **stay active (0)** using features such as watch hours, last login days, subscription type, region, and monthly fee.
 
 ## Dataset
 
-`data/ott_churn_data.csv` — 500 rows, 10 columns:
+`data/ott_churn_data.csv`
 
-| Column             | Description                             |
-|---------------------|-----------------------------------------|
-| customer_id         | Unique customer identifier              |
-| age                 | Age of the customer                     |
-| gender              | Gender of the customer                  |
-| subscription_type   | Basic / Standard / Premium              |
-| watch_hours         | Average hours of content watched        |
-| last_login_days     | Days since the customer last logged in  |
-| region              | Region the customer belongs to          |
-| device              | Primary device used to watch content    |
-| monthly_fee         | Monthly subscription amount             |
-| churned             | Target column: 1 = churned, 0 = active  |
+* **500 rows**
+* **10 columns**
+* No missing values
 
-No missing values in any column.
+| Column              | Description                |
+| ------------------- | -------------------------- |
+| `customer_id`       | Unique customer ID         |
+| `age`               | Customer age               |
+| `gender`            | Customer gender            |
+| `subscription_type` | Basic / Standard / Premium |
+| `watch_hours`       | Average watch hours        |
+| `last_login_days`   | Days since last login      |
+| `region`            | Customer region            |
+| `device`            | Primary viewing device     |
+| `monthly_fee`       | Monthly subscription fee   |
+| `churned`           | 1 = Churned, 0 = Active    |
 
 ## Project Structure
 
-```
+```text
 mlops-project/
 ├── data/
 │   └── ott_churn_data.csv
 ├── src/
 │   ├── train.py
-│   └── predict.py
+│   ├── predict.py
+│   └── compare_models.py
 ├── models/
 │   ├── churn_model.pkl
-│   └── encoders.pkl
+│   ├── encoders.pkl
+│   ├── model_comparison_results.csv
+│   └── model_comparison_chart.png
 ├── requirements.txt
 └── README.md
 ```
 
 ## How It Works
 
-**`src/train.py`**
-- Loads the dataset
-- Cleans missing values
-- Encodes categorical columns (`gender`, `subscription_type`, `region`,
-  `device`)
-- Splits data into train/test sets (80/20)
-- Trains a Random Forest classifier
-- Prints accuracy, precision, recall, and F1 score
-- Saves the trained model and encoders to `models/`
-
-**`src/predict.py`**
-- Loads the saved model and encoders
-- Takes a customer's details as input
-- Returns whether the customer is likely to churn, along with the churn
-  probability
+* **`train.py`** — Preprocesses the data, trains the Random Forest model, evaluates it, and saves the model.
+* **`predict.py`** — Predicts customer churn, churn probability, and risk level.
+* **`compare_models.py`** — Compares Logistic Regression, Random Forest, and Gradient Boosting.
 
 ## How to Run
 
-Install dependencies:
 ```bash
 pip install -r requirements.txt
-```
-
-Train the model:
-```bash
 python src/train.py
-```
-
-Run a prediction:
-```bash
 python src/predict.py
+python src/compare_models.py
 ```
-
-To predict for a different customer, edit the `sample_customer` dictionary
-inside `predict.py` with the new customer's details.
 
 ## Results
 
-Trained on 400 samples, evaluated on 100 held-out samples:
+### Random Forest
 
 | Metric    | Score |
-|-----------|-------|
-| Accuracy  | 0.93  |
-| Precision | 0.95  |
-| Recall    | 0.88  |
-| F1 Score  | 0.91  |
+| --------- | ----: |
+| Accuracy  |  0.93 |
+| Precision |  0.95 |
+| Recall    |  0.88 |
+| F1 Score  |  0.91 |
 
-### Sample Prediction
+### Model Comparison
 
-Input:
-```json
-{
-  "age": 28,
-  "gender": "Male",
-  "subscription_type": "Basic",
-  "watch_hours": 3.5,
-  "last_login_days": 40,
-  "region": "South",
-  "device": "Mobile",
-  "monthly_fee": 199
-}
-```
+| Model               | Accuracy | Precision | Recall |    F1 |
+| ------------------- | -------: | --------: | -----: | ----: |
+| Logistic Regression |     0.97 |     0.951 |  0.975 | 0.963 |
+| Random Forest       |     0.93 |     0.946 |  0.875 | 0.909 |
+| Gradient Boosting   |     0.96 |     0.950 |  0.950 | 0.950 |
 
-Output:
-```
-Prediction: Likely to churn
-Churn probability: 0.89
-```
+**Logistic Regression achieved the best overall performance** on this dataset.
 
-This matches intuition — low watch hours, a long gap since last login,
-and a low-tier plan are classic early churn signals.
+## Sample Prediction
 
-## Model Used
+**Input:** Customer with 3.5 watch hours and 40 days since last login.
 
-Random Forest Classifier (scikit-learn) — chosen because it handles both
-numeric and encoded categorical features well and gives a strong baseline
-without heavy tuning.
+**Output:**
+
+* Prediction: Likely to churn
+* Churn Probability: 0.89
+* Risk Level: High Risk
+* Recommendation: Immediate retention offer
 
 ## Future Improvements
 
-- Add more behavioral features (sessions per week, content genre
-  preference)
-- Try other models (XGBoost, Logistic Regression) and compare performance
+* Add more customer behavior features.
+* Perform cross-validation and hyperparameter tuning.
+* Test additional models such as XGBoost.
+* Deploy the system as a web application/API.
