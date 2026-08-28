@@ -30,3 +30,15 @@ result = "Likely to churn" if prediction == 1 else "Likely to stay"
 print("Customer details:", sample_customer)
 print("Prediction:", result)
 print("Churn probability:", round(probability, 3))
+
+if probability > 0.7:
+    print("Recommend immediate retention offer")
+
+if probability >= 0.8:
+    risk_level = "High Risk"
+elif probability >= 0.5:
+    risk_level = "Medium Risk"
+else:
+    risk_level = "Low Risk"
+
+print("Risk Level:", risk_level)
